@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+
+<html>
+
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="A full webos with a cool flat design." />
+        <meta name="author" content="Axel Nana" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+        <title>FlatOS</title>
+
+        <script type="text/javascript">
+            if (!window.FlatOS) {
+                window.FlatOS = {
+                    Api: {},
+                    System: {
+                        Application: {}
+                    },
+                    UI: {},
+                    Input: {},
+                    Callback: {}
+                };
+            }
+            if (!window.F) {
+                window.F = {
+                    System: {},
+                    UI: {},
+                    Input: {},
+                    Cache: {}
+                };
+            }
+        </script>
+        <% for (var c in css.core) { %>
+        <link rel="stylesheet" class="core-css" type="text/css" href="<%= css.core[c] %>" />
+        <% } %>
+        <% for (var c in css.user) { %>
+        <link rel="stylesheet" class="core-css" type="text/css" href="<%= css.user[c] %>" />
+        <% } %>
+    </head>
+
+    <body>
+
+        <div id="interface-loader-wrapper" class="animated" style="display: none;"></div>
+
+        <div id="desktop-wrapper"></div>
+
+        <div id="notification-wrapper"></div>
+
+        <% for (var j in js.core) { %>
+        <script class="core-js" type="<%= js.core[j].mimetype %>" src="<%= js.core[j].src %>" <%= js.core[j].attr %>></script>
+        <% } %>
+        <% for (var j in js.user) { %>
+        <script class="user-js" type="text/javascript" src="<%= js.user[j] %>"></script>
+        <% } %>
+    </body>
+
+</html>
