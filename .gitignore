@@ -243,8 +243,3 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
-
-# Custom
-/users/adr/
-/users/manu/
-/users/tk2/
