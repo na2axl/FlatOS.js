@@ -6697,7 +6697,172 @@
         return DialogUI;
 
     })(ContentTools.WidgetUI);
-    
+
+    ContentTools.SampleDialog = (function (_super) {
+        __extends(SampleDialog, _super);
+
+        function SampleDialog() {
+            SampleDialog.__super__.constructor.call(this, 'Insert image');
+        }
+
+        SampleDialog.prototype.mount = function (imageURL, title, description) {
+            var domPreview, domDescription;
+            SampleDialog.__super__.mount.call(this);
+            ContentEdit.addCSSClass(this._domElement, 'ct-docsample-dialog');
+            ContentEdit.addCSSClass(this._domView, 'ct-docsample-dialog__view');
+            domPreview = this.constructor.createDiv(['ct-docsample-dialog__preview']);
+            this._domControls.appendChild(domPreview);
+            this._domPreviewImage = this.constructor.createDiv(['ct-docsample-doalog__image']);
+            domPreview.appendChild(this._domPreviewImage);
+            this._domPreviewImage.style['background-image'] = "url(" + imageURL + ")";
+            this._addDOMEventListeners();
+            return this.dispatchEvent(this.createEvent('imageuploader.mount'));
+        };
+
+        SampleDialog.prototype.populate = function (imageURL, imageSize) {
+            var that = this;
+            this._imageURL = imageURL;
+            this._imageSize = imageSize;
+            if (!this._domImage) {
+                this._domImage = this.constructor.createDiv(['ct-image-dialog__image']);
+                this._domView.appendChild(this._domImage);
+            }
+            this._domImage.style['background-image'] = "url(" + imageURL + ")";
+            return this.state('populated');
+        };
+
+        SampleDialog.prototype.progress = function (progress) {
+            if (progress === void 0) {
+                return this._progress;
+            }
+            this._progress = progress;
+            if (!this.isMounted()) {
+                return;
+            }
+            return this._domProgress.style.width = "" + this._progress + "%";
+        };
+
+        SampleDialog.prototype.removeCropMarks = function () {
+            if (!this._cropMarks) {
+                return;
+            }
+            this._cropMarks.unmount();
+            this._cropMarks = null;
+            return ContentEdit.removeCSSClass(this._domCrop, 'ct-control--active');
+        };
+
+        SampleDialog.prototype.save = function (imageURL, imageSize, imageAttrs) {
+            return this.dispatchEvent(this.createEvent('save', {
+                'imageURL': imageURL,
+                'imageSize': imageSize,
+                'imageAttrs': imageAttrs
+            }));
+        };
+
+        SampleDialog.prototype.state = function (state) {
+            var prevState;
+            if (state === void 0) {
+                return this._state;
+            }
+            if (this._state === state) {
+                return;
+            }
+            prevState = this._state;
+            this._state = state;
+            if (!this.isMounted()) {
+                return;
+            }
+            ContentEdit.addCSSClass(this._domElement, "ct-image-dialog--" + this._state);
+            return ContentEdit.removeCSSClass(this._domElement, "ct-image-dialog--" + prevState);
+        };
+
+        SampleDialog.prototype.unmount = function () {
+            SampleDialog.__super__.unmount.call(this);
+            this._domCancelUpload = null;
+            this._domClear = null;
+            this._domCrop = null;
+            this._domInput = null;
+            this._domInsert = null;
+            this._domProgress = null;
+            this._domRotateCCW = null;
+            this._domRotateCW = null;
+            this._domFlipV = null;
+            this._domFlipH = null;
+            this._domUpload = null;
+            return this.dispatchEvent(this.createEvent('imageuploader.unmount'));
+        };
+
+        SampleDialog.prototype._addDOMEventListeners = function () {
+            SampleDialog.__super__._addDOMEventListeners.call(this);
+            this._domInput.addEventListener('change', (function (_this) {
+                return function (ev) {
+                    var file;
+                    file = ev.target.files[0];
+                    ev.target.value = '';
+                    if (ev.target.value) {
+                        ev.target.type = 'text';
+                        ev.target.type = 'file';
+                    }
+                    return _this.dispatchEvent(_this.createEvent('imageuploader.fileready', {
+                        file: file
+                    }));
+                };
+            })(this));
+            this._domCancelUpload.addEventListener('click', (function (_this) {
+                return function (ev) {
+                    return _this.dispatchEvent(_this.createEvent('imageuploader.cancelupload'));
+                };
+            })(this));
+            this._domClear.addEventListener('click', (function (_this) {
+                return function (ev) {
+                    _this.removeCropMarks();
+                    return _this.dispatchEvent(_this.createEvent('imageuploader.clear'));
+                };
+            })(this));
+            this._domRotateCCW.addEventListener('click', (function (_this) {
+                return function (ev) {
+                    _this.removeCropMarks();
+                    return _this.dispatchEvent(_this.createEvent('imageuploader.rotateccw'));
+                };
+            })(this));
+            this._domRotateCW.addEventListener('click', (function (_this) {
+                return function (ev) {
+                    _this.removeCropMarks();
+                    return _this.dispatchEvent(_this.createEvent('imageuploader.rotatecw'));
+                };
+            })(this));
+            this._domFlipV.addEventListener('click', (function (_this) {
+                return function (ev) {
+                    _this.removeCropMarks();
+                    return _this.dispatchEvent(_this.createEvent('imageuploader.flipvertical'));
+                };
+            })(this));
+            this._domFlipH.addEventListener('click', (function (_this) {
+                return function (ev) {
+                    _this.removeCropMarks();
+                    return _this.dispatchEvent(_this.createEvent('imageuploader.fliphorizontal'));
+                };
+            })(this));
+            this._domCrop.addEventListener('click', (function (_this) {
+                return function (ev) {
+                    if (_this._cropMarks) {
+                        return _this.removeCropMarks();
+                    } else {
+                        return _this.addCropMarks();
+                    }
+                };
+            })(this));
+            return this._domInsert.addEventListener('click', (function (_this) {
+                return function (ev) {
+                    return _this.dispatchEvent(_this.createEvent('imageuploader.save'));
+                };
+            })(this));
+        };
+
+        return SampleDialog;
+
+    })(ContentTools.DialogUI);
+
     ContentTools.ImageDialog = (function (_super) {
         __extends(ImageDialog, _super);
 
