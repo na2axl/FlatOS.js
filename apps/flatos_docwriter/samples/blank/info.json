@@ -1,7 +1,6 @@
 {
     "name": "Blank Document",
-    "preview": "",
     "author": "Axel Nana",
     "link": "",
-    "desc": "Creates a new empty document with default margin."
+    "desc": "Creates a new empty document with default page margin."
 }
