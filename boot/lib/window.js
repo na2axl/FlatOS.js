@@ -559,8 +559,10 @@ F.Window.switch_to = function(new_window) {
     $(new_window).attr('data-current-window', 1);
     F.Window.refresh_z_index();
     F.Taskbar.refresh();
-    $(new_window).get(0) && ($(new_window).tabIndex = 99);
-    $(new_window).get(0) && $(new_window).get(0).focus();
+    if ($(new_window).get(0)) {
+        $(new_window).get(0).tabIndex = 99;
+        $(new_window).get(0).focus();
+    }
     console.log(document.activeElement);
     Callback.call('onFocus', process_name+'_'+instance_id);
 };
