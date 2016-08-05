@@ -123,6 +123,51 @@
         return target;
     };
 
+    var update_views = function (panel_id) {
+        var $wrapper = $_w.find(".mainviews")
+            , $parent = $wrapper.parent('.panel-file')
+            , $panels = $wrapper.find('.mainview')
+            , $buttons = $parent.find('.option.switcher');
+
+        $buttons.removeClass('active');
+        $buttons.filter('[data-view="' + panel_id + '"]').addClass('active');
+
+        $panels.hide(0, function () {
+            $panels.filter('[data-view="' + panel_id + '"]').show(0);
+        });
+    };
+
+    var init_views = function () {
+
+        var $wrapper = $_w.find(".mainviews")
+            , $parent = $wrapper.parent('.panel-file')
+            , $panels = $wrapper.find('.mainview')
+            , $buttons = $parent.find('.option.switcher');
+
+        var currpanelid = $panels.eq(currPanel).attr('data-view');
+
+        if (typeof prevpanel === 'undefined') {
+            prevpanel = currpanelid;
+        }
+
+        $buttons.each(function () {
+            var $a = $(this);
+            _m.leftClick('docwriter.view.switch', $a, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if ($a.hasClass('disable-switch')) {
+                    return false;
+                } else {
+                    prevpanel = currpanelid;
+                    update_views($a.attr('data-view'));
+                }
+            });
+        });
+
+        update_views(currpanelid);
+
+    };
+
     var update_panels = function (panel_id) {
         var $wrapper = $_w.find(".panels")
             , $parent = $wrapper.parent('.panel-wrapper')
@@ -133,7 +178,7 @@
         $buttons.filter('[href="' + panel_id + '"]').addClass('active');
 
         $panels.hide(0, function () {
-            $(panel_id).show(0, function () {
+            $panels.filter(panel_id).show(0, function () {
                 update_panels_sizes();
             });
         });
@@ -353,6 +398,7 @@
         });
 
         init_panels();
+        init_views();
 
         _m.leftClick('docwriter.panels.files.show', $_w.find('.panel_file'), function () {
             showFilePanel = true;

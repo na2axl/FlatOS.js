@@ -3,22 +3,37 @@
         <div class="option back_icon">
             <span>Back</span>
         </div>
-        <div class="option new_icon">
+        <div class="option switcher" data-view="new">
             <span>New</span>
         </div>
-        <div class="option open_icon">
+        <div class="option switcher" data-view="open">
             <span>Open</span>
         </div>
-        <div class="option save_icon">
+        <div class="option switcher" data-view="save">
             <span>Save</span>
         </div>
-        <div class="option saveas_icon">
-            <span>Save As</span>
+        <div class="option switcher" data-view="export">
+            <span>Export</span>
         </div>
     </div>
-    <div class="mainview">
-        <div class="">
-
+    <div class="mainviews">
+        <div class="mainview" data-view="new">
+            <div class="title">New Document</div>
+            <div class="content">
+                <div class="grid sample-list"></div>
+            </div>
+        </div>
+        <div class="mainview" data-view="open">
+            <div class="title">Open Document</div>
+            <div class="content"></div>
+        </div>
+        <div class="mainview" data-view="save">
+            <div class="title">Save Document</div>
+            <div class="content"></div>
+        </div>
+        <div class="mainview" data-view="export">
+            <div class="title">Export Document</div>
+            <div class="content"></div>
         </div>
     </div>
 </div>
