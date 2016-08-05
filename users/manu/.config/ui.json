@@ -1,7 +1,0 @@
-{
-    "interface": "flatos",
-    "icons": "flatos",
-    "background-image": "~/Pictures/bg.jpg",
-    "background-repeat": false,
-    "background-mode": "center"
-}
