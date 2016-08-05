@@ -337,16 +337,43 @@
     cursor: pointer !important;
 }
 
+.flatos_docwriter .panel-file .options .option.active,
 .flatos_docwriter .panel-file .options .option:hover {
     background-color: #B28A26;
 }
 
-.flatos_docwriter .panel-file .mainview {
+.flatos_docwriter .panel-file .mainviews {
     width: calc(100% - 250px);
     float: left;
     margin: 0;
     padding: 2.5em;
     height: 100%;
+    overflow-y: auto;
+}
+
+.flatos_docwriter .panel-file .mainviews .title {
+    width: 100%;
+    font-size: 2.5em;
+    height: 75px;
+    float: left;
+    display: block;
+}
+
+.flatos_docwriter .panel-file .mainviews .content {
+    width: 100%;
+    float: left;
+    clear: left;
+    display: block;
+}
+
+.flatos_docwriter .panel-file .mainviews .content .sample-preview {
+    cursor: pointer;
+    width: 100%;
+    padding: 8px;
+}
+
+.flatos_docwriter .panel-file .mainviews .content .sample-preview:hover {
+    box-shadow: 0 0 10px 1px #000000;
 }
 
 .flatos_docwriter .panel-file .options .back_icon {
@@ -2115,7 +2142,6 @@
 }
 
 .flatos_docwriter .ct-widget .ct-inspector__tags {
-    /* width: calc(100% - 196px); */
     float: left;
 }
 
