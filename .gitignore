@@ -245,14 +245,14 @@ ModelManifest.xml
 .fake/
 
 # Custom
-/.idea
-/.vscode
-/typings
-/users/adr
-/users/manu
-/users/tk2
-/.tern-project
-/FlatOS.njsproj
-/FlatOS.sln
-/FlatOS 3.0.iml
-/jsconfig.json
+.idea
+.vscode
+typings
+users/adr
+users/manu
+users/tk2
+.tern-project
+FlatOS.njsproj
+FlatOS.sln
+FlatOS 3.0.iml
+jsconfig.json
