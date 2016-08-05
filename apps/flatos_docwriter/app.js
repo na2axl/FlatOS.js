@@ -9,25 +9,25 @@
         , _f = new FlatOS.System.FS();
 
 
-    var instance = _w.getInstanceID()
-        , $_w = _w.get();
+    var instance = _w.getInstanceID(),
+        $_w = _w.get();
 
-    var file_info = {}
-        , currPanel = 0
-        , prevpanel;
+    var file_info = {},
+        currPanel = 0,
+        prevpanel;
 
-    var editor
-        , stack
-        , range
-        , inspector
-        , tools = {}
-        , imageDialog
-        , tableDialog
-        , modal
-        , flashUI
-        , clipboard;
+    var editor,
+        stack,
+        range,
+        inspector,
+        tools = {},
+        imageDialog,
+        tableDialog,
+        modal,
+        flashUI,
+        clipboard;
 
-    var showFilePanel = false;
+    var showFilePanel = true;
 
     var page_contents_element = null;
 
@@ -63,6 +63,15 @@
         page.css('margin-left', (left < 0 ? 0 : left));
     };
 
+    var load_samples = function (callback) {
+        var samples_path = _f.toInternalPath(_a.getPath() + '/samples');
+        if ($.isFunction(callback)) {
+            new FlatOS.Api.FS(function (sample_list) {
+                callback(sample_list);
+            }).readDir(samples_path);
+        }
+    };
+
     var init_docwriter = function () {
         $_w.find('.toolbox_ribbon').addClass('hide');
 
@@ -94,7 +103,7 @@
         $_w.find('.docwriter_pages').append('<div class="docwriter_document_page"><div class="docwriter_document_page_content" data-editable data-name="docwriter_document"><p></p></div></div>');
 
         page_contents_element = $_w.find('.docwriter_document_page_content').eq(0)[0];
-        var ct_app = $_w.find('.ct-app');
+        var ct_app = ($_w.find('.ct-app').length > 0) ? $_w.find('.ct-app').eq(0) : $('<div/>').addClass('ct-app').appendTo($_w.find('.main-content').eq(0));
 
         editor = ContentTools.EditorApp.get();
 
@@ -111,6 +120,11 @@
         ct_app.children('.ct-ignition').remove();
         // ct_app.children('.ct-inspector').remove();
         ct_app.children('.ct-toolbox').remove();
+    };
+
+    var destroy_page = function () {
+        editor.destroy();
+        $_w.find('.docwriter_document_page').remove();
     };
 
     var getParentNode = function (el, until) {
@@ -383,7 +397,42 @@
     _w.on('init', function () {
         init_docwriter();
 
-        add_page();
+        load_samples(function (samples) {
+            var $list = $_w.find('.mainviews').find('.sample-list');
+            for (var sample in samples) {
+                var info = JSON.parse(_f.read(samples[sample] + '/info.json'));
+                var $g4 = $('<div/>').addClass('g4');
+                var $img = $('<img/>').addClass('sample-preview').attr('title', info.name);
+                if (_f.exists(samples[sample] + '/preview.png')) {
+                    $img.attr('src', _a.getURI() + '/samples/' + sample + '/preview.png');
+                }
+                else {
+                    $img.attr('src', _a.getURI() + '/icon.svg');
+                }
+                _m.leftClick('docwriter.sample.load', $img, function () {
+                    if (editor) {
+                        _w.dialogConfirm({
+                            title: 'Save this file ?',
+                            content: 'Do you want to save the current file before create the new one ?',
+                            ok: 'Yes',
+                            cancel: 'No'
+                        },
+                        function (save) {
+                            if (save) {
+                                save_document();
+                            }
+                        });
+                        destroy_page();
+                    }
+                    var data = JSON.parse(_f.read(samples[sample] + '/sample.docw'));
+                    add_page();
+                    set_page_contents(data.doc_contents);
+                    showFilePanel = false;
+                });
+                $g4.append($img);
+                $list.append($g4);
+            }
+        });
 
         var $wrapper = $_w.find(".panels")
             , $parent = $wrapper.parent('.panel-wrapper')
@@ -443,9 +492,9 @@
             });
         });
 
-        $(['bold', 'italic', 'underline', 'strike', 'superscript', 'subscript', 'align-left'
-           , 'align-center', 'align-right', 'align-justify', 'indent', 'unindent', 'paragraph', 'heading'
-           , 'subheading', 'preformatted', 'blockquote', 'unordered-list', 'ordered-list']).each(function () {
+        $(['bold', 'italic', 'underline', 'strike', 'superscript', 'subscript', 'align-left',
+            'align-center', 'align-right', 'align-justify', 'indent', 'unindent', 'paragraph', 'heading',
+            'subheading', 'preformatted', 'blockquote', 'unordered-list', 'ordered-list']).each(function () {
             var action = this.toString();
 
             tools[action] = new ContentTools.ToolUI(ContentTools.ToolShelf.fetch(action));
@@ -601,12 +650,12 @@
                         modal.hide();
                         imageDialog.hide();
                         new FlatOS.System.Application.ConfirmDialog({
-                            parent_pid: this_process_name
-                            , parent_iid: instance
-                            , title: 'Choose another picture ?'
-                            , content: 'Do you want to choose another picture ?'
-                            , ok: 'Yes'
-                            , cancel: 'No, just close this popup'
+                            parent_pid: this_process_name,
+                            parent_iid: instance,
+                            title: 'Choose another picture ?',
+                            content: 'Do you want to choose another picture ?',
+                            ok: 'Yes',
+                            cancel: 'No, just close this popup'
                         }, function (choice) {
                             if (choice) {
                                 $_w.find('.action-insert_image').trigger('click.docwriter.insert.image');
@@ -740,8 +789,8 @@
                                 canvas.width = sW;
                                 context.drawImage(ctx, sX, sY, sW, sH, 0, 0, sW, sH);
 
-                                var img
-                                    , imageAttrs = {}
+                                var img,
+                                    imageAttrs = {}
                                     , index, node, _ref;
 
                                 imageAttrs.height = sH;
@@ -1032,7 +1081,7 @@
                     modal.hide();
                     imageDialog.hide();
                     return false;
-                }
+                };
             })());
 
             image.onload = function () {
