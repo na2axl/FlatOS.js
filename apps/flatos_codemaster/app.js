@@ -172,7 +172,7 @@
         editor[currPanel].setShowPrintMargin(user_config.show_print_margin);
         editor[currPanel].$blockScrolling = Infinity;
 
-        editor[currPanel].getSession().on("change", function (e) {
+        editor[currPanel].getSession().on("change", function () {
             var title = '';
             if (typeof file_info[currPanel].basename === 'undefined') {
                 title = 'Untitled';
@@ -203,101 +203,66 @@
                     e.preventDefault();
                 });
                 $dialog.find('input[name="find_this"]').keyup(function () {
+                    var searchTimeOut = setTimeout(function () {
+                        var find_text = $dialog.find('input[name="find_this"]').val();
+                        editor.find(find_text, options);
+                    }, 500);
+
                     if (typeof searchTimeOut !== 'undefined') {
                         clearTimeout(searchTimeOut);
                     }
-
-                    var searchTimeOut = setTimeout(function () {
-                        var find_text = $dialog.find('input[name="find_this"]').val()
-                        editor.find(find_text, options);
-                    }, 500);
                 });
                 _mouse.leftClick('codemaster.finder.findOnce', $dialog.find('button[name="find_once"]'), function () {
-                    var find_text = $dialog.find('input[name="find_this"]').val()
+                    var find_text = $dialog.find('input[name="find_this"]').val();
                     editor.find(find_text, options);
                 });
                 _mouse.leftClick('codemaster.finder.findAll', $dialog.find('button[name="find_all"]'), function () {
-                    var find_text = $dialog.find('input[name="find_this"]').val()
+                    var find_text = $dialog.find('input[name="find_this"]').val();
                     editor.findAll(find_text, options);
                 });
                 _mouse.leftClick('codemaster.finder.replaceOnce', $dialog.find('button[name="replace_once"]'), function () {
-                    var replace_text = $dialog.find('input[name="replace_with"]').val()
+                    var replace_text = $dialog.find('input[name="replace_with"]').val();
                     editor.replace(replace_text);
-                    var find_text = $dialog.find('input[name="find_this"]').val()
+                    var find_text = $dialog.find('input[name="find_this"]').val();
                     editor.find(find_text, options);
                 });
                 _mouse.leftClick('codemaster.finder.replaceAll', $dialog.find('button[name="replace_all"]'), function () {
-                    var replace_text = $dialog.find('input[name="replace_with"]').val()
+                    var replace_text = $dialog.find('input[name="replace_with"]').val();
                     editor.replaceAll(replace_text);
                 });
                 _mouse.leftClick('codemaster.finder.regex', $dialog.find('input[name="with_regex"]'), function () {
-                    var c = $(this),
-                        e = c.prop("checked");
+                    var c = $(this);
+                    options['regExp'] = c.prop("checked") ? true : false;
 
-                    if (e) {
-                        options['regExp'] = true;
-                    }
-                    else {
-                        options['regExp'] = false;
-                    }
-
-                    var find_text = $dialog.find('input[name="find_this"]').val()
+                    var find_text = $dialog.find('input[name="find_this"]').val();
                     editor.find(find_text, options);
                 });
                 _mouse.leftClick('codemaster.finder.cs', $dialog.find('input[name="case_sens"]'), function () {
-                    var c = $(this),
-                        e = c.prop("checked");
+                    var c = $(this);
+                    options['caseSensitive'] = c.prop("checked") ? true : false;
 
-                    if (e) {
-                        options['caseSensitive'] = true;
-                    }
-                    else {
-                        options['caseSensitive'] = false;
-                    }
-
-                    var find_text = $dialog.find('input[name="find_this"]').val()
+                    var find_text = $dialog.find('input[name="find_this"]').val();
                     editor.find(find_text, options);
                 });
                 _mouse.leftClick('codemaster.finder.wholeWord', $dialog.find('input[name="whole_word"]'), function () {
-                    var c = $(this),
-                        e = c.prop("checked");
+                    var c = $(this);
+                    options['wholeWord'] = c.prop("checked") ? true : false;
 
-                    if (e) {
-                        options['wholeWord'] = true;
-                    }
-                    else {
-                        options['wholeWord'] = false;
-                    }
-
-                    var find_text = $dialog.find('input[name="find_this"]').val()
+                    var find_text = $dialog.find('input[name="find_this"]').val();
                     editor.find(find_text, options);
                 });
                 _mouse.leftClick('codemaster.finder.wrapEnd', $dialog.find('input[name="wrap_end"]'), function () {
-                    var c = $(this),
-                        e = c.prop("checked");
+                    var c = $(this);
+                    options['wrap'] = c.prop("checked") ? true : false;
 
-                    if (e) {
-                        options['wrap'] = true;
-                    }
-                    else {
-                        options['wrap'] = false;
-                    }
-
-                    var find_text = $dialog.find('input[name="find_this"]').val()
+                    var find_text = $dialog.find('input[name="find_this"]').val();
                     editor.find(find_text, options);
                 });
                 _mouse.leftClick('codemaster.finder.direction', $dialog.find('input[name="direction"]'), function () {
-                    var c = $(this),
-                        e = c.val();
+                    var c = $(this);
+                    options['backwards'] = (c.val() === 'next');
 
-                    if (e == 'next') {
-                        options['backwards'] = false;
-                    }
-                    else {
-                        options['backwards'] = true;
-                    }
-
-                    var find_text = $dialog.find('input[name="find_this"]').val()
+                    var find_text = $dialog.find('input[name="find_this"]').val();
                     editor.find(find_text, options);
                 });
                 _mouse.leftClick('codemaster.finder.close', $dialog.find('.flatos_codemaster_close_dialog'), function () {
@@ -343,7 +308,7 @@
         editor[currPanel].commands.addCommand({
             name: 'open',
             bindKey: { win: 'Ctrl-O', mac: 'Command-O' },
-            exec: function (editor) { openFile(); },
+            exec: function () { openFile(); },
             readOnly: true
         });
 
@@ -351,7 +316,7 @@
         editor[currPanel].commands.addCommand({
             name: 'new',
             bindKey: { win: 'Ctrl-N', mac: 'Command-N' },
-            exec: function (editor) { add_panel(); init_panels(); },
+            exec: function () { add_panel(); init_panels(); },
             readOnly: true
         });
 
@@ -418,7 +383,7 @@
                     var file = new FlatOS.System.FS();
                     opts.startAt = file.dirname(file_info[currPanel].internalPath);
                 }
-                var selector = new FlatOS.System.Application.FileSaverDialog(opts, function (isSaved, path) {
+                new FlatOS.System.Application.FileSaverDialog(opts, function (isSaved, path) {
                     if (isSaved === true) {
                         $dialog.find('div[name="message"]').text('File saved succesfully.');
                         set_panel(_window.get().find('a.panel-switcher.active').attr('href'), path);
@@ -427,14 +392,15 @@
                         $dialog.find('div[name="message"]').text('Cannot save the file.');
                     }
                     $dialog.show();
-                    if (typeof hide === 'undefined') {
-                        var hide = setTimeout(function () {
+                    var hide = null;
+                    if (hide === null) {
+                        hide = setTimeout(function () {
                             $dialog.hide();
                         }, 5000);
                     }
                     else {
                         clearTimeout(hide);
-                        var hide = setTimeout(function () {
+                        hide = setTimeout(function () {
                             $dialog.hide();
                         }, 5000);
                     }
@@ -653,7 +619,7 @@
         editor[currPanel].commands.addCommand({
             name: 'app_info',
             bindKey: { win: 'F1', mac: 'F1' },
-            exec: function (editor) {
+            exec: function () {
                 _window.about();
             },
             readOnly: true
@@ -666,7 +632,7 @@
         });
 
         editor[currPanel].focus();
-    }
+    };
 
     var set_panel_title = function (panel_id, panel_title) {
         if (typeof panel_title !== 'undefined') {
@@ -708,7 +674,7 @@
                 opts.startAt = _f.dirname(file_info[current - 1].internalPath);
                 currentUsed = true;
             }
-            var selector = new FlatOS.System.Application.FileSelectorDialog(opts, function (filepath) {
+            new FlatOS.System.Application.FileSelectorDialog(opts, function (filepath) {
                 if (currentUsed) {
                     file_info[current] = file.open(filepath);
 
@@ -761,9 +727,9 @@
         }
         else {
             set_panel('#flatos_codemaster_1_panel_1', path);
-            editor[current].execCommand('save');
+            editor[1].execCommand('save');
         }
-    }
+    };
 
     var fileIsSaved = function (panel) {
         var isSaved = true,
@@ -876,6 +842,6 @@
 
     _application.registerCommand('open', openLaunch);
 
-    _application.setContextMenuAction('edit_file', openFile);
+    _application.setContextMenuAction('edit_file', openLaunch);
 
 })(jQuery);
