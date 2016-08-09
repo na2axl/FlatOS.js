@@ -538,7 +538,7 @@ FS.prototype.exists = function (path) {
 FS.prototype.isDir = function (path) {
     var _f = require('fs');
     if (this.exists(path)) {
-        return _f.lstatSync(path).isDirectory();
+        return _f.lstatSync(this.toInternalPath(path)).isDirectory();
     }
     return false;
 };
@@ -552,7 +552,7 @@ FS.prototype.isDir = function (path) {
  */
 FS.prototype.lastModTime = function (path) {
     var _f = require('fs');
-    return _f.lstatSync(path).ctime.getTime();
+    return _f.lstatSync(this.toInternalPath(path)).ctime.getTime();
 };
 
 /**
@@ -564,7 +564,7 @@ FS.prototype.lastModTime = function (path) {
  */
 FS.prototype.lastAccessTime = function (path) {
     var _f = require('fs');
-    return _f.lstatSync(path).atime.getTime();
+    return _f.lstatSync(this.toInternalPath(path)).atime.getTime();
 };
 
 /**
@@ -576,7 +576,7 @@ FS.prototype.lastAccessTime = function (path) {
  */
 FS.prototype.createTime = function (path) {
     var _f = require('fs');
-    return _f.lstatSync(path).birthtime.getTime();
+    return _f.lstatSync(this.toInternalPath(path)).birthtime.getTime();
 };
 
 /**
@@ -588,7 +588,7 @@ FS.prototype.createTime = function (path) {
  */
 FS.prototype.basename = function (path) {
     var _p = require('path');
-    return _p.basename(path);
+    return _p.basename(this.toInternalPath(path));
 };
 
 /**
@@ -615,7 +615,7 @@ FS.prototype.extension = function (path) {
  */
 FS.prototype.filename = function (path) {
     var _p = require('path');
-    return _p.basename(path, '.' + this.extension(path));
+    return _p.basename(this.toInternalPath(path), '.' + this.extension(path));
 };
 
 /**
