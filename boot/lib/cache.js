@@ -23,3 +23,6 @@ F.Cache.Ajax = {
 
 // Callbacks Cache
 F.Cache.Callback = undefined;
+
+// Contextual menu Cache
+F.Cache.ContextMenu = {};
