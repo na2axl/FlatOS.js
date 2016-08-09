@@ -10,9 +10,9 @@ ul.icons li.ui-selected img {
     opacity: 1;
 }
 
-ul.icons li.selected span,
-ul.icons li.ui-selected span {
-    background-color: #262626;
+ul.icons li.selected,
+ul.icons li.ui-selected {
+    background-color: rgba(33, 33, 33, 0.8);
     color: #fff !important;
 }
 
@@ -22,6 +22,7 @@ ul.icons.medium li {
     height: 96px;
     text-align: center;
     margin: 8px;
+    padding: 10px 0;
     display: inline-block;
 }
 
