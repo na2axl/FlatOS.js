@@ -7,16 +7,17 @@
     FlatOS.UI.Desktop.prototype._loadIcons = function () {
         var that = this;
         new FlatOS.Api.User(function (file_list) {
-            $('#desktop-icons').remove();
+            var $ul = $('#desktop-icons');
+            $ul.empty();
             var Mouse = new FlatOS.Input.Mouse();
             var Keyboard = new FlatOS.Input.Keyboard();
-            var $ul = $('<ul id="desktop-icons" class="icons medium flatos-files-list"></ul>');
             Mouse.contextualMenu($ul, {
                 create: {
                     new_folder: {
                         name: 'New Folder',
                         callback: function () {
                             if (!$ul.hasClass('lock-for-new')) {
+                                $ul.find('li').removeClass('ui-selected');
                                 var icon = new FlatOS.UI.Icon();
                                 var $li = $('<li></li>').append(icon.getIcon('folder'));
                                 var $input = $('<input type="text" id="desktop-new-folder-input" autofocus />');
@@ -71,6 +72,7 @@
                         name: 'New File',
                         callback: function () {
                             if (!$ul.hasClass('lock-for-new')) {
+                                $ul.find('li').removeClass('ui-selected');
                                 var icon = new FlatOS.UI.Icon();
                                 var $li = $('<li></li>').append(icon.getFileIcon());
                                 var $input = $('<input type="text" id="desktop-new-file-input" autofocus />');
@@ -110,6 +112,26 @@
                                 $li.appendTo($ul.addClass('lock-for-new'));
                                 $input.focus();
                             }
+                        }
+                    }
+                },
+                view: {
+                    small: {
+                        name: 'Small icons',
+                        callback: function () {
+                            $ul.removeClass('small medium big').addClass('small');
+                        }
+                    },
+                    medium: {
+                        name: 'Medium icons',
+                        callback: function () {
+                            $ul.removeClass('small medium big').addClass('medium');
+                        }
+                    },
+                    big: {
+                        name: 'Big icons',
+                        callback: function () {
+                            $ul.removeClass('small medium big').addClass('big');
                         }
                     }
                 },
@@ -165,11 +187,11 @@
                     autoRefresh: false
                 });
             }).getConfig('desktop');
-            Mouse.leftClick('ui.desktop.active', $ul, function () {
+            Mouse.leftClick('ui.desktop', $ul, function () {
                 $ul.get(0).tabIndex = 99;
                 $ul.focus();
             });
-            Keyboard.keyDown('ui.desktop.open.file', $ul, function (e) {
+            Keyboard.keyDown('ui.desktop', $ul, function (e) {
                 if (e.keyCode === 13) {
                     var _a = new FlatOS.System.Application.DefaultAppsManager();
                     $ul.find('li.ui-selected').each(function () {
@@ -182,7 +204,7 @@
                 if (e.keyCode === 37) {
                     if ($ul.find('li').is('.ui-selected')) {
                         var $selected = $ul.find('li.ui-selected').eq($ul.find('li.ui-selected').length - 1);
-                        $selected.prev().get(0) && ($ul.find('li.ui-selected').removeClass('ui-selected'), $selected.prev().addClass('ui-selected'));
+                        $selected.prev().get(0) && ((e.shiftKey || $ul.find('li.ui-selected').removeClass('ui-selected')), (e.shiftKey ? $selected.removeClass('ui-selected') : $selected.prev().addClass('ui-selected')));
                     }
                     else {
                         $ul.find('li').eq(0).addClass('ui-selected');
@@ -191,7 +213,7 @@
                 if (e.keyCode === 39) {
                     if ($ul.find('li').is('.ui-selected')) {
                         var $selected = $ul.find('li.ui-selected').eq($ul.find('li.ui-selected').length - 1);
-                        $selected.next().get(0) && ($ul.find('li.ui-selected').removeClass('ui-selected'), $selected.next().addClass('ui-selected'));
+                        $selected.next().get(0) && ((e.shiftKey || $ul.find('li.ui-selected').removeClass('ui-selected')), $selected.next().addClass('ui-selected'));
                     }
                     else {
                         $ul.find('li').eq(0).addClass('ui-selected');
@@ -266,4 +288,4 @@
         }
     };
 
-} (jQuery);
+}(jQuery);
