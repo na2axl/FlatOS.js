@@ -563,6 +563,10 @@ F.Window.switch_to = function(new_window) {
         $(new_window).get(0).tabIndex = 99;
         $(new_window).get(0).focus();
     }
+    else {
+        $('ul#desktop-icons').get(0).tabIndex = 99;
+        $('ul#desktop-icons').get(0).focus();
+    }
     console.log(document.activeElement);
     Callback.call('onFocus', process_name+'_'+instance_id);
 };
