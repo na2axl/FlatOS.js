@@ -243,3 +243,25 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+### VisualStudioCode template
+.vscode
+
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+
+# JetBrains Rider
+*.sln.iml
+
+# Project Files
+/typings/
+/.tern-project
+/jsconfig.json
+/FlatOS.njsproj
+/FlatOS.sln
+/users/na2axl/
