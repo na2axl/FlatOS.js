@@ -48,7 +48,7 @@
     };
 
     FlatOS.Application.prototype.getPath = function() {
-        return F.Application.getPath(this.options.process_name, this.options.isSystemApp)
+        return F.Application.getPath(this.options.process_name, this.options.isSystemApp);
     };
 
     FlatOS.Application.prototype.getURI = function() {
@@ -72,8 +72,8 @@
     };
 
     FlatOS.Application.prototype.restart = function(instance, options) {
-        var that = this
-            , _w = new FlatOS.Window(this.options.process_name, instance);
+        var that = this,
+            _w = new FlatOS.Window(this.options.process_name, instance);
         _w.close();
         setTimeout(function() {
             that.launch(options);
