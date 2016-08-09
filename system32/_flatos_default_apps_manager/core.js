@@ -1,7 +1,5 @@
 +function ($) {
 
-    // TODO: The contextual menu action loads the default app. CHANGE IT !!
-
     FlatOS.System.Application.DefaultAppsManager = function() {
         this._app = new FlatOS.Application({ process_name: '_flatos_default_apps_manager', isSystemApp: true });
     };
@@ -15,8 +13,7 @@
                 // TODO: Create the default app chooser window...
                 return;
             }
-            _app = new FlatOS.Application(process_name);
-            _app.launch();
+            new FlatOS.Application(process_name).launch();
         },
 
         getRegExt: function(process_name) {
@@ -38,7 +35,7 @@
 
         getRegApps: function(extension) {
             var registred_apps = this._app.getAppConfig("registred_apps");
-            var extArray, appArray = new Array();
+            var extArray, appArray = [];
             for (var app in registred_apps) {
                 extArray = registred_apps[app].split(',');
                 if (~extArray.indexOf(extension)) {
@@ -48,19 +45,44 @@
             return appArray;
         },
 
-        openWithDefault: function(filepath) {
-            var FS = new FlatOS.System.FS();
+        openWith: function (process_name, filepath) {
             var Callback = new FlatOS.Callback();
-            var process_name = this.getDefaultApp(FS.extension(filepath));
-            if (process_name === false) {
+            if (process_name === false || typeof process_name === 'undefined') {
                 return;
             }
-            _app = new FlatOS.Application(process_name);
+            var _app = new FlatOS.Application(process_name);
             _app.launch({
                 callback: function() {
-                    Callback.call('open', process_name, filepath);
+                    var checker = Callback.get('checkfile', process_name);
+                    if ($.isFunction(checker)) {
+                        try {
+                            if (checker(filepath)) {
+                                Callback.call('open', process_name, filepath);
+                            }
+                            else {
+                                new FlatOS.Window(process_name).dialogAlert({
+                                    title: "Can't open the file",
+                                    content: "This file is corrupted and can't be opened."
+                                });
+                            }
+                        }
+                        catch (e) {
+                            new FlatOS.Window(process_name).dialogAlert({
+                                title: "Can't open the file",
+                                content: "This file is corrupted and can't be opened."
+                            });
+                        }
+                    }
+                    else {
+                        Callback.call('open', process_name, filepath);
+                    }
                 }
             });
+        },
+
+        openWithDefault: function(filepath) {
+            var FS = new FlatOS.System.FS();
+            return this.openWith(this.getDefaultApp(FS.extension(filepath)), filepath);
         },
 
         changeDefaultApp: function() { },

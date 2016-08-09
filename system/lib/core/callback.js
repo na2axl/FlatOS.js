@@ -26,6 +26,7 @@
             // App callbacks
             this.api.open_commands = {};
             this.api.save_commands = {};
+            this.api.check_commands = {};
 
             // Contextual Menu callbacks
             this.api.cm_callbacks = {};
@@ -164,6 +165,10 @@
             case 'save':
                 this.api.save_commands[id] = callback;
             break;
+
+            case 'checkfile':
+                this.api.check_commands[id] = callback;
+            break;
         }
         this._save();
     };
@@ -275,19 +280,25 @@
 
             case 'open':
                 if ($.isFunction(this.api.open_commands[id])) {
-                    this.api.open_commands[id](args);
+                    return this.api.open_commands[id](args);
                 }
             break;
 
             case 'save':
                 if ($.isFunction(this.api.save_commands[id])) {
-                    this.api.save_commands[id](args);
+                    return this.api.save_commands[id](args);
+                }
+            break;
+
+            case 'checkfile':
+                if ($.isFunction(this.api.check_commands[id])) {
+                    return this.api.check_commands[id](args);
                 }
             break;
 
             case 'contextMenu':
                 if ($.isFunction(this.api.cm_callbacks[id])) {
-                    this.api.cm_callbacks[id](args);
+                    return this.api.cm_callbacks[id](args);
                 }
             break;
         }
@@ -348,6 +359,9 @@
 
             case 'save':
                 return this.api.save_commands[id];
+
+            case 'checkfile':
+                return this.api.check_commands[id];
 
             case 'contextMenu':
                 return this.api.cm_callbacks[id];
@@ -426,6 +440,10 @@
 
             case 'save':
                 this.api.save_commands[id] = [];
+            break;
+
+            case 'checkfile':
+                this.api.check_commands[id] = [];
             break;
 
             case 'contextMenu':
