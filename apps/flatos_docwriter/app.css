@@ -24,6 +24,14 @@
     background-color: #bbf;
 }
 
+.flatos_docwriter .docwriter_pages_wrapper.full {
+    height: 100%;
+}
+
+.flatos_docwriter .docwriter_pages_wrapper.readmode .docwriter_document_page_content {
+    border: none;
+}
+
 .flatos_docwriter .docwriter_pages {
     overflow: auto;
     height: calc(100% - 32px);
@@ -317,6 +325,11 @@
     width: 100%;
     height: 100%;
     background-color: #ffffff;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 99999;
 }
 
 .flatos_docwriter .panel-file .options {
@@ -374,6 +387,50 @@
 
 .flatos_docwriter .panel-file .mainviews .content .sample-preview:hover {
     box-shadow: 0 0 10px 1px #000000;
+}
+
+.flatos_docwriter .panel-file .mainviews .content .open_folders {
+    width: 200px;
+    float: left;
+    margin: 0;
+    padding: 0;
+}
+
+.flatos_docwriter .panel-file .mainviews .content .open_folders .open_folder {
+    width: 100%;
+    padding: 10px 25px;
+    margin: 0 auto;
+    transition: background-color ease-in 0.15s 0s;
+    cursor: pointer !important;
+    font-weight: bold;
+    height: 48px;
+    line-height: 28px;
+}
+
+.flatos_docwriter .panel-file .mainviews .content .open_folders .open_folder.active,
+.flatos_docwriter .panel-file .mainviews .content .open_folders .open_folder:hover {
+    background-color: #eee;
+}
+
+.flatos_docwriter .panel-file .mainviews .content .open_file {
+    width: 100%;
+    height: 48px;
+    cursor: pointer;
+    padding: 8px 0;
+    line-height: 32px;
+}
+
+.flatos_docwriter .panel-file .mainviews .content .open_files {
+    float: left;
+    width: calc(100% - 200px);
+}
+
+.flatos_docwriter .panel-file .mainviews .content .open_file span {
+    margin:  0 8px;
+}
+
+.flatos_docwriter .panel-file .mainviews .content .open_file:hover {
+    background-color: #eee;
 }
 
 .flatos_docwriter .panel-file .options .back_icon {
@@ -928,7 +985,7 @@
     border-radius: 2px;
     box-shadow: 0 3px 3px rgba(0, 0, 0, .25);
     color: #4e4e4e;
-    font: arial, sans-serif;
+    font-family: arial, sans-serif;
     font-size: 12px;
     height: 120px;
     left: 0;
