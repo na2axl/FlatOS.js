@@ -1,5 +1,5 @@
 // Create a namespace
-F.Application = {}
+F.Application = {};
 // ------------------
 
 /**
@@ -119,7 +119,7 @@ F.Application.getUserConfig = function (process_name, isSystemApp, user, config_
             return app_config_file;
         }
         else {
-            if (app_config_file[config_name] === undefined) {
+            if (typeof app_config_file[config_name] === 'undefined') {
                 return null;
             }
             else {
