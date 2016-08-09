@@ -2,11 +2,11 @@
 
     const this_process_name = 'flatos_docwriter';
 
-    var _w = new FlatOS.Window(this_process_name)
-        , _a = new FlatOS.Application(this_process_name)
-        , _m = new FlatOS.Input.Mouse()
-        , _u = new FlatOS.System.User()
-        , _f = new FlatOS.System.FS();
+    var _w = new FlatOS.Window(this_process_name),
+        _a = new FlatOS.Application(this_process_name),
+        _m = new FlatOS.Input.Mouse(),
+        _u = new FlatOS.System.User(),
+        _f = new FlatOS.System.FS();
 
 
     var instance = _w.getInstanceID(),
@@ -16,7 +16,7 @@
         currPanel = 0,
         prevpanel;
 
-    var editor,
+    var editor = null,
         stack,
         range,
         inspector,
@@ -33,8 +33,32 @@
 
     var autosave_interval = 0;
 
+    var user_config = null;
+
+    var load_user_config = function () {
+        user_config = _a.getUserConfig();
+        return user_config;
+    };
+
+    var add_to_recents = function (path) {
+        if (user_config === null) {
+            load_user_config();
+            add_to_recents(path);
+        }
+        else {
+            if (~user_config.lastOpened.indexOf(path)) {
+                var i = user_config.lastOpened.indexOf(path);
+                var a = user_config.lastOpened.slice(0, i);
+                var b = user_config.lastOpened.slice(i+1, user_config.lastOpened.length);
+                user_config.lastOpened = a.concat(b);
+            }
+            user_config.lastOpened.unshift(path);
+            _a.setUserConfig(user_config);
+        }
+    };
+
     var update_file_panel_visibility = function () {
-        showFilePanel ? $_w.find('.panel-file').removeClass('hide') : $_w.find('.panel-file').addClass('hide');;
+        showFilePanel ? $_w.find('.panel-file').removeClass('hide') : $_w.find('.panel-file').addClass('hide');
     };
 
     var update_panels_sizes = function () {
@@ -66,8 +90,8 @@
     var load_samples = function (callback) {
         var samples_path = _f.toInternalPath(_a.getPath() + '/samples');
         if ($.isFunction(callback)) {
-            new FlatOS.Api.FS(function (sample_list) {
-                callback(sample_list);
+            new FlatOS.Api.FS(function (samples_list) {
+                callback(samples_list);
             }).readDir(samples_path);
         }
     };
@@ -76,9 +100,9 @@
         $_w.find('.toolbox_ribbon').addClass('hide');
 
         ContentTools.RESTRICTED_ATTRIBUTES = {
-            '*': ['class']
-            , 'img': ['height', 'src', 'width', 'data-ce-max-width', 'data-ce-min-width']
-            , 'iframe': ['height', 'width']
+            '*': ['class'],
+            'img': ['height', 'src', 'width', 'data-ce-max-width', 'data-ce-min-width'],
+            'iframe': ['height', 'width']
         };
 
         ContentTools.StylePalette.add([
@@ -112,7 +136,7 @@
 
         inspector = editor.inspector();
 
-        if (!editor.isEditing()) {
+        if (editor && !editor.isEditing()) {
             editor.start();
         }
 
@@ -138,10 +162,10 @@
     };
 
     var update_views = function (panel_id) {
-        var $wrapper = $_w.find(".mainviews")
-            , $parent = $wrapper.parent('.panel-file')
-            , $panels = $wrapper.find('.mainview')
-            , $buttons = $parent.find('.option.switcher');
+        var $wrapper = $_w.find(".mainviews"),
+            $parent = $wrapper.parent('.panel-file'),
+            $panels = $wrapper.find('.mainview'),
+            $buttons = $parent.find('.option.switcher');
 
         $buttons.removeClass('active');
         $buttons.filter('[data-view="' + panel_id + '"]').addClass('active');
@@ -152,11 +176,10 @@
     };
 
     var init_views = function () {
-
-        var $wrapper = $_w.find(".mainviews")
-            , $parent = $wrapper.parent('.panel-file')
-            , $panels = $wrapper.find('.mainview')
-            , $buttons = $parent.find('.option.switcher');
+        var $wrapper = $_w.find(".mainviews"),
+            $parent = $wrapper.parent('.panel-file'),
+            $panels = $wrapper.find('.mainview'),
+            $buttons = $parent.find('.option.switcher');
 
         var currpanelid = $panels.eq(currPanel).attr('data-view');
 
@@ -179,14 +202,13 @@
         });
 
         update_views(currpanelid);
-
     };
 
     var update_panels = function (panel_id) {
-        var $wrapper = $_w.find(".panels")
-            , $parent = $wrapper.parent('.panel-wrapper')
-            , $panels = $wrapper.find('.panel')
-            , $buttons = $parent.find('.panel-switcher');
+        var $wrapper = $_w.find(".panels"),
+            $parent = $wrapper.parent('.panel-wrapper'),
+            $panels = $wrapper.find('.panel'),
+            $buttons = $parent.find('.panel-switcher');
 
         $buttons.removeClass('active');
         $buttons.filter('[href="' + panel_id + '"]').addClass('active');
@@ -198,12 +220,22 @@
         });
     };
 
-    var init_panels = function () {
+    var update_panels_visibility = function () {
+        if (editor && editor.isEditing()) {
+            $_w.find('.panel-wrapper').removeClass('hide');
+            $_w.find('.docwriter_pages_wrapper').removeClass('full readmode');
+        }
+        else {
+            $_w.find('.panel-wrapper').addClass('hide');
+            $_w.find('.docwriter_pages_wrapper').addClass('full readmode');
+        }
+    };
 
-        var $wrapper = $_w.find(".panels")
-            , $parent = $wrapper.parent('.panel-wrapper')
-            , $panels = $wrapper.find('.panel')
-            , $buttons = $parent.find('.panel-switcher');
+    var init_panels = function () {
+        var $wrapper = $_w.find(".panels"),
+            $parent = $wrapper.parent('.panel-wrapper'),
+            $panels = $wrapper.find('.panel'),
+            $buttons = $parent.find('.panel-switcher');
 
         var currpanelid = '#' + $panels.eq(currPanel).attr('id');
 
@@ -226,7 +258,6 @@
         });
 
         update_panels(currpanelid);
-
     };
 
     var set_page_margin = function set_page_margin(side, size) {
@@ -240,10 +271,10 @@
     var get_page_margin = function get_page_margin(side) {
         if (typeof side === 'undefined') {
             return {
-                top: $_w.find('.docwriter_document_page').css('padding-top')
-                , left: $_w.find('.docwriter_document_page').css('padding-left')
-                , bottom: $_w.find('.docwriter_document_page').css('padding-bottom')
-                , right: $_w.find('.docwriter_document_page').css('padding-right')
+                top: $_w.find('.docwriter_document_page').css('padding-top'),
+                left: $_w.find('.docwriter_document_page').css('padding-left'),
+                bottom: $_w.find('.docwriter_document_page').css('padding-bottom'),
+                right: $_w.find('.docwriter_document_page').css('padding-right')
             };
         } else {
             return $_w.find('.docwriter_document_page').css('padding-' + side);
@@ -251,7 +282,15 @@
     };
 
     var get_page_contents = function get_page_contents() {
-        return editor.history.snapshot();
+        var contents = {};
+        if (editor && editor.isEditing()) {
+            contents = editor.history.snapshot();
+            contents.selected = null;
+        }
+        else {
+            contents = {"regions":{"docwriter_document":$(page_contents_element).html()},"selected":null};
+        }
+        return contents;
     };
 
     var get_page_properties = function get_page_properties(prop) {
@@ -262,49 +301,60 @@
             default:
                 return {
                     page_margin: get_page_margin()
-                }
+                };
         }
     };
 
     var open_document = function open_document(path) {
         if (typeof path === 'undefined') {
             var opts = {
-                startAt: _u.userDir('Documents')
-                , parent_pid: this_process_name
-                , parent_iid: instance
+                startAt: _u.userDir('Documents'),
+                parent_pid: this_process_name,
+                parent_iid: instance
             };
             if (typeof file_info.internalPath != 'undefined') {
                 opts.startAt = _f.dirname(file_info.internalPath);
             }
             new FlatOS.System.Application.FileSelectorDialog(opts, function (filepath) {
+                if (editor === null) {
+                    add_page();
+                }
                 file_info = new FlatOS.System.File().openFile(filepath);
                 var doc = JSON.parse(file_info.contents);
                 for (var side in doc.doc_properties.page_margin) {
                     set_page_margin(side, doc.doc_properties.page_margin[side]);
                 }
                 set_page_contents(doc.doc_contents);
+                add_to_recents(file_info.externalPath);
+                showFilePanel = false;
             });
         }
         else {
-            file_info = new FlatOS.System.File().openFile(path);
-            var doc = JSON.parse(file_info.contents);
-            for (var side in doc.doc_properties.page_margin) {
-                set_page_margin(side, doc.doc_properties.page_margin[side]);
-            }
-            set_page_contents(doc.doc_contents);
+            new FlatOS.Api.File(function (info) {
+                file_info = info;
+                if (editor === null) {
+                    add_page();
+                }
+                var doc = JSON.parse(file_info.contents);
+                for (var side in doc.doc_properties.page_margin) {
+                    set_page_margin(side, doc.doc_properties.page_margin[side]);
+                }
+                set_page_contents(doc.doc_contents);
+                add_to_recents(file_info.externalPath);
+                showFilePanel = false;
+            }).openFile(path);
         }
-        showFilePanel = false;
     };
 
     var save_document = function save_document() {
         if (typeof file_info.internalPath === 'undefined') {
             var opts = {
-                startAt: _u.userDir('Documents')
-                , parent_pid: this_process_name
-                , parent_iid: instance
-                , withExt: ['docw']
-                , contents: JSON.stringify(get_document())
-                , ext: 'docw'
+                startAt: _u.userDir('Documents'),
+                parent_pid: this_process_name,
+                parent_iid: instance,
+                withExt: ['docw'],
+                contents: JSON.stringify(get_document()),
+                ext: 'docw'
             };
             $(inspector._domSaving).removeClass('hide');
             new FlatOS.System.Application.FileSaverDialog(opts, function (isSaved, path) {
@@ -346,8 +396,7 @@
 
     var init_autosave = function (interval) {
         autosave_interval = setInterval(function () {
-            console.log(editor.history.snapshot());
-            console.log(editor.regions());
+            save_document();
         }, interval);
     };
 
@@ -394,11 +443,9 @@
         }
     };
 
-    _w.on('init', function () {
-        init_docwriter();
-
+    var load_file_panel = function () {
         load_samples(function (samples) {
-            var $list = $_w.find('.mainviews').find('.sample-list');
+            var $list = $_w.find('.mainviews').find('.sample-list').empty();
             for (var sample in samples) {
                 var info = JSON.parse(_f.read(samples[sample] + '/info.json'));
                 var $g4 = $('<div/>').addClass('g4');
@@ -412,32 +459,66 @@
                 _m.leftClick('docwriter.sample.load', $img, function () {
                     if (editor) {
                         _w.dialogConfirm({
-                            title: 'Save this file ?',
-                            content: 'Do you want to save the current file before create the new one ?',
-                            ok: 'Yes',
-                            cancel: 'No'
-                        },
-                        function (save) {
-                            if (save) {
-                                save_document();
+                                title: 'Save this file ?',
+                                content: 'Do you want to save the current file before create the new one ?',
+                                ok: 'Yes',
+                                cancel: 'No'
+                            },
+                            function (save) {
+                                if (save) {
+                                    save_document();
+                                    destroy_page();
+                                    var data = JSON.parse(_f.read(samples[sample] + '/sample.docw'));
+                                    add_page();
+                                    file_info = {};
+                                    set_page_contents(data.doc_contents);
+                                    showFilePanel = false;
+                                }
                             }
-                        });
-                        destroy_page();
+                        );
                     }
-                    var data = JSON.parse(_f.read(samples[sample] + '/sample.docw'));
-                    add_page();
-                    set_page_contents(data.doc_contents);
-                    showFilePanel = false;
+                    else {
+                        var data = JSON.parse(_f.read(samples[sample] + '/sample.docw'));
+                        add_page();
+                        set_page_contents(data.doc_contents);
+                        showFilePanel = false;
+                    }
                 });
                 $g4.append($img);
                 $list.append($g4);
             }
         });
 
-        var $wrapper = $_w.find(".panels")
-            , $parent = $wrapper.parent('.panel-wrapper')
-            , $panels = $wrapper.find('.panel')
-            , $buttons = $parent.find('.panel-switcher');
+        if (user_config === null) {
+            load_user_config();
+        }
+        $_w.find('.open_files').empty();
+        for (var i = 0, l = user_config.lastOpened.length; i < l; ++i) {
+            var $g4 = $('<div/>').addClass('open_file').attr('data-external-path', user_config.lastOpened[i]);
+            var $img = $('<img/>').attr('src', _a.getURI() + '/icon.svg').css({
+                'float': 'left',
+                'width': '32px'
+            });
+            var $span = $('<span/>').text(user_config.lastOpened[i]);
+            $g4.append($img);
+            $g4.append($span);
+            $g4.appendTo($_w.find('.open_files'));
+            _m.leftClick('docwriter.document.open', $g4, function () {
+                var path = $(this).attr('data-external-path');
+                open_document(path);
+            });
+        }
+    };
+
+    _w.on('init', function () {
+        init_docwriter();
+
+        load_file_panel();
+
+        var $wrapper = $_w.find(".panels"),
+            $parent = $wrapper.parent('.panel-wrapper'),
+            $panels = $wrapper.find('.panel'),
+            $buttons = $parent.find('.panel-switcher');
 
         $buttons.each(function () {
             $(this).attr('href', $(this).attr('href') + instance);
@@ -450,16 +531,19 @@
         init_views();
 
         _m.leftClick('docwriter.panels.files.show', $_w.find('.panel_file'), function () {
+            load_file_panel();
             showFilePanel = true;
         });
 
         _m.leftClick('docwriter.panels.files.hide', $_w.find('.panel-file').find('.back_icon'), function () {
-            showFilePanel = false;
+            if (editor) {
+                showFilePanel = false;
+            }
         });
 
         $(['undo', 'redo']).each(function () {
             var action = this.toString();
-            _m.leftClick('docwriter.stack.'+action, $_w.find('.action-'+action), function () {
+            _m.leftClick('docwriter.stack.' + action, $_w.find('.action-' + action), function () {
                 var element, selection;
                 element = ContentEdit.Root.get().focused();
                 if (!(element && element.isMounted())) {
@@ -469,8 +553,8 @@
                 if (element && element.selection) {
                     selection = element.selection();
                 }
-                ContentTools.ToolShelf.fetch(action).apply(element, selection, function (success) {});
-            })
+                ContentTools.ToolShelf.fetch(action).apply(element, selection, function (success) { });
+            });
         });
 
         $(['unordered-list', 'ordered-list']).each(function () {
@@ -513,7 +597,7 @@
             });
         });
 
-        $(['ol', 'ul']).each(function (el) {
+        $(['ol', 'ul']).each(function () {
             var el = this.toString();
 
             _m.buttonDown('docwriter.list.style', $_w.find('.action-' + el), function () {
@@ -617,10 +701,10 @@
             element = ContentEdit.Root.get().focused();
 
             var opts = {
-                startAt: _u.userDir('Pictures')
-                , parent_pid: this_process_name
-                , parent_iid: instance
-                , withExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png']
+                startAt: _u.userDir('Pictures'),
+                parent_pid: this_process_name,
+                parent_iid: instance,
+                withExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png']
             };
             new FlatOS.System.Application.FileSelectorDialog(opts, function (path) {
                 var image = new Image();
@@ -661,7 +745,7 @@
                                 $_w.find('.action-insert_image').trigger('click.docwriter.insert.image');
                             }
                         });
-                    }
+                    };
                 })());
 
                 image.onload = function () {
@@ -790,8 +874,8 @@
                                 context.drawImage(ctx, sX, sY, sW, sH, 0, 0, sW, sH);
 
                                 var img,
-                                    imageAttrs = {}
-                                    , index, node, _ref;
+                                    imageAttrs = {},
+                                    index, node, _ref;
 
                                 imageAttrs.height = sH;
                                 imageAttrs.src = canvas.toDataURL('image/jpeg');
@@ -831,10 +915,10 @@
             element = ContentEdit.Root.get().focused();
 
             var opts = {
-                startAt: _u.userDir('Pictures')
-                , parent_pid: this_process_name
-                , parent_iid: instance
-                , withExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png']
+                startAt: _u.userDir('Pictures'),
+                parent_pid: this_process_name,
+                parent_iid: instance,
+                withExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png']
             };
             new FlatOS.System.Application.FileSelectorDialog(opts, function (path) {
                 var image = new Image();
@@ -868,7 +952,7 @@
                         modal.hide();
                         imageDialog.hide();
                         return false;
-                    }
+                    };
                 })());
 
                 image.onload = function () {
@@ -1111,7 +1195,7 @@
 
                             var sizes = element.size();
                             var r = sH / sW;
-                            var w = sizes[w];
+                            var w = sizes[0];
                             var h = w * r;
 
                             element.unmount();
@@ -1448,17 +1532,17 @@
         // init_autosave(5000);
 
         for (var action in tools) {
-            tools[action].addEventListener('applied', (function (_this) {
+            tools[action].addEventListener('applied', (function (u, a) {
                 return function () {
-                    update_tool(_this);
+                    u(a);
                 };
-            })(action));
+            })(update_tool, action));
         }
 
     });
 
     _w.on('focus', function () {
-        if (editor.isEditing()) {
+        if (editor && editor.isEditing()) {
             var elements = editor.regions().docwriter_document.children;
             elements[elements.length - 1].focus();
         }
@@ -1470,20 +1554,45 @@
         update_panels_sizes();
         update_page_margin();
         update_file_panel_visibility();
+        update_panels_visibility();
     });
 
     _w.on('close', function () {
-        editor.destroy();
-        clearInterval(autosave_interval);
+        if (editor) {
+            editor.destroy();
+            clearInterval(autosave_interval);
+        }
     });
 
-    _w.on('resizing', function () {
-        update_panels_sizes();
-    });
+    _w.on('resizing', (function (u) {
+        return function () {
+            u();
+        };
+    })(update_panels_sizes));
 
-    _a.registerCommand('open', function (path) {
-        open_document(path);
-        $_w.find('.panel-file').addClass('hide');
-    });
+    _a.registerCommand('checkfile', (function (_f) {
+        return function (path) {
+            var info = _f.openFile(path);
+            // TODO: Add DocWriter extensions here
+            info.contents = $.parseJSON(info.contents);
+            if (info.extension === 'docw') {
+                if (info.contents.hasOwnProperty("doc_properties") && info.contents.hasOwnProperty("doc_contents")) {
+                    if (info.contents.doc_properties.hasOwnProperty("page_margin") &&
+                        info.contents.doc_contents.hasOwnProperty("regions") &&
+                        info.contents.doc_contents.hasOwnProperty("selected")) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+    })(new FlatOS.System.File()));
+    
+    _a.registerCommand('open', (function (o, w) {
+        return function (path) {
+            o(path);
+            w.find('.panel-file').addClass('hide');
+        };
+    })(open_document, $_w));
 
 })(jQuery);
