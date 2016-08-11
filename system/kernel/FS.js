@@ -672,7 +672,7 @@ FS.prototype.size = function (path) {
         return totalSize;
     }
     else {
-        return _f.lstatSync(path).size;
+        return _f.lstatSync(this.toInternalPath(path)).size;
     }
 };
 
