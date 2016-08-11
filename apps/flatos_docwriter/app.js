@@ -98,6 +98,7 @@
 
     var init_docwriter = function () {
         $_w.find('.toolbox_ribbon').addClass('hide');
+        $(window.frames["docwriter_print_frame_support"].document).find('head').append('<link href="' + _a.getURI() + '/print.css" rel="stylesheet" type="text/css">');
 
         ContentTools.RESTRICTED_ATTRIBUTES = {
             '*': ['class'],
@@ -272,18 +273,18 @@
         if (typeof side === 'undefined') {
             return {
                 top: $_w.find('.docwriter_document_page').css('padding-top'),
-                left: $_w.find('.docwriter_document_page').css('padding-left'),
+                right: $_w.find('.docwriter_document_page').css('padding-right'),
                 bottom: $_w.find('.docwriter_document_page').css('padding-bottom'),
-                right: $_w.find('.docwriter_document_page').css('padding-right')
+                left: $_w.find('.docwriter_document_page').css('padding-left')
             };
         } else {
             return $_w.find('.docwriter_document_page').css('padding-' + side);
         }
     };
 
-    var get_page_contents = function get_page_contents() {
+    var get_page_contents = function get_page_contents(html) {
         var contents = {};
-        if (editor && editor.isEditing()) {
+        if (html || (editor && editor.isEditing())) {
             contents = editor.history.snapshot();
             contents.selected = null;
         }
@@ -387,6 +388,25 @@
         }
     };
 
+    var print_document = function () {
+        if (editor && editor.isEditing()) {
+            editor.stop(true);
+        }
+        var css = $('<style type="text/css" class="page_style" media="print" />');
+        var margins_text = '';
+        var margins = get_page_margin();
+        for (var m in margins) {
+            margins_text += margins[m] + ' ';
+        }
+        css.text('@page {size: portrait; margin: ' + margins_text + '}');
+        $(window.frames["docwriter_print_frame_support"].document).find('head').find('.page_style').remove();
+        $(window.frames["docwriter_print_frame_support"].document).find('head').append(css);
+        window.frames["docwriter_print_frame_support"].document.body.innerHTML = $(page_contents_element).html();
+        window.frames["docwriter_print_frame_support"].window.focus();
+        window.frames["docwriter_print_frame_support"].window.print();
+        editor.start();
+    };
+
     var get_document = function () {
         return {
             doc_properties: get_page_properties(),
@@ -395,6 +415,7 @@
     };
 
     var init_autosave = function (interval) {
+        interval = interval || (60000 * 5);
         autosave_interval = setInterval(function () {
             save_document();
         }, interval);
@@ -1525,6 +1546,10 @@
             save_document();
         });
 
+        _m.leftClick('docwriter.document.print', $_w.find('.action-print'), function () {
+            print_document();
+        });
+
         _w.addShortcut('Ctrl+S', function () {
             save_document();
         });
@@ -1587,7 +1612,7 @@
             return false;
         };
     })(new FlatOS.System.File()));
-    
+
     _a.registerCommand('open', (function (o, w) {
         return function (path) {
             o(path);

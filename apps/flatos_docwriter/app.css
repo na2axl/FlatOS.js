@@ -797,6 +797,10 @@
     font-size: 48px;
 }
 
+.flatos_docwriter .action-print::before {
+    font-family: 'docwriter';
+    content: "\e022";
+}
 
 /*! ContentTools v1.2.9 by Anthony Blackshaw <ant@getme.co.uk> (https://github.com/anthonyjb) */
 
