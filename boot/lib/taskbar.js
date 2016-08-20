@@ -7,7 +7,7 @@ F.Taskbar.load = function() {
 };
 
 F.Taskbar.refresh = function() {
-    var $current_window  = $('.window[data-current-window="1"]');
+    var $current_window  = $('.window[data-current-window="1"][data-active-window="1"]');
     var current_process  = $current_window.attr('data-process-id');
     var current_instance = $current_window.attr('data-instance-id');
 
@@ -28,7 +28,7 @@ F.Taskbar.refresh = function() {
     });
 
     if (typeof current_process !== 'undefined') {
-        $taskicon = $taskbar_icons.children('.taskicon[data-process-id="'+current_process+'"]');
+        var $taskicon = $taskbar_icons.children('.taskicon[data-process-id="'+current_process+'"]');
         if (typeof current_instance !== 'undefined') {
             $taskicon = $taskbar_icons.children('.taskicon[data-process-id="'+current_process+'"][data-instance-id="'+current_instance+'"]');
         }
@@ -65,8 +65,8 @@ F.Taskbar.get = function(process_name, instance_id) {
     return $('.taskbar-icons').find('#flatos_task_' + process_name + '_' + instance_id);
 };
 
-F.Taskbar.alarm = function(process_name, instance_id) {
-    $task = F.Taskbar.get(process_name, instance_id);
+F.Taskbar.notify = function(process_name, instance_id) {
+    var $task = F.Taskbar.get(process_name, instance_id);
     $task.removeClass('slideInLeft').addClass('infinite flash hinted').click(function() {
         $task.removeClass('infinite flash hinted');
         F.Taskbar.refresh();
@@ -75,6 +75,10 @@ F.Taskbar.alarm = function(process_name, instance_id) {
         $task.removeClass('infinite flash');
     }, 10000);
     F.Window.on('focus', process_name, function() { $task.removeClass('infinite flash hinted'); F.Taskbar.refresh(); }, instance_id);
+};
+
+F.Taskbar.wait = function(process_name, instance_id) {
+    F.Taskbar.get(process_name, instance_id).toggleClass('waiting');
 };
 
 F.Taskbar.setTitle = function(title, process_name, instance_id) {
@@ -124,7 +128,7 @@ F.Taskbar.add = function(process_name, instance_id) {
 };
 
 F.Taskbar.remove = function(process_name, instance_id) {
-    $taskicon = $('.taskbar-icons').children('.taskicon[data-process-id="'+process_name+'"]');
+    var $taskicon = $('.taskbar-icons').children('.taskicon[data-process-id="'+process_name+'"]');
     if (typeof instance_id !== 'undefined') {
         $taskicon = $('.taskbar-icons').children('.taskicon[data-process-id="'+process_name+'"][data-instance-id="'+instance_id+'"]');
     }
