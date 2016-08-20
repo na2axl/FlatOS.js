@@ -89,8 +89,8 @@
 
 .flatos_docwriter .docwriter_document_page_content blockquote {
     border-left: #E4E4E4 solid 4px;
-    margin: 0px 30px;
-    padding: 0px 15px;
+    margin: 0 0 1em 1em;
+    padding: 0px 0.5em;
     font-size: 110%;
     font-style: italic;
 }
@@ -121,7 +121,7 @@
 
 .flatos_docwriter .docwriter_document_page_content img {
     border-style:none;
-    margin: 0px auto;
+    margin: 0px auto 1em auto;
     max-width: 100%;
     display: block;
 }
