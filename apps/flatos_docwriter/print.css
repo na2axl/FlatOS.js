@@ -407,8 +407,8 @@ em {
 
 blockquote {
     border-left: #E4E4E4 solid 4px;
-    margin: 0px 30px;
-    padding: 0px 15px;
+    margin: 0 0 1em 1em;
+    padding: 0px 0.5em;
     font-size: 110%;
     font-style: italic;
 }
