@@ -1,42 +1,50 @@
 +function ($) {
 
-    FlatOS.UI.TaskBar = function(opt) {
+    /**
+     * Application's Taskbar Icon Manager
+     * @param {{process_name: String, instance_id: int}|String} opt
+     * @constructor
+     */
+    FlatOS.UI.Taskbar = function(opt) {
         if (typeof opt === 'string') {
             opt = {process_name: opt};
         }
-
         this.options = $.extend( {}, {process_name: '', instance_id: 0}, opt );
     };
 
-    FlatOS.UI.TaskBar.prototype.load = function() {
+    FlatOS.UI.Taskbar.prototype.load = function() {
         F.Taskbar.load();
     };
 
-    FlatOS.UI.TaskBar.prototype.refresh = function() {
+    FlatOS.UI.Taskbar.prototype.refresh = function() {
         F.Taskbar.refresh();
     };
 
-    FlatOS.UI.TaskBar.prototype.get = function() {
+    FlatOS.UI.Taskbar.prototype.get = function() {
         return F.Taskbar.get(this.options.process_name, this.options.instance_id);
     };
 
-    FlatOS.UI.TaskBar.prototype.notify = function() {
-        F.Taskbar.alarm(this.options.process_name, this.options.instance_id);
+    FlatOS.UI.Taskbar.prototype.notify = function() {
+        F.Taskbar.notify(this.options.process_name, this.options.instance_id);
     };
 
-    FlatOS.UI.TaskBar.prototype.setTitle = function(title) {
+    FlatOS.UI.Taskbar.prototype.toggleWaiting = function() {
+        F.Taskbar.wait(this.options.process_name, this.options.instance_id);
+    };
+
+    FlatOS.UI.Taskbar.prototype.setTitle = function(title) {
         F.Taskbar.setTitle(this.options.process_name, this.options.instance_id);
     };
 
-    FlatOS.UI.TaskBar.prototype.is = function() {
+    FlatOS.UI.Taskbar.prototype.is = function() {
         return F.Taskbar.is(this.options.process_name, this.options.instance_id);
     };
 
-    FlatOS.UI.TaskBar.prototype.add = function() {
+    FlatOS.UI.Taskbar.prototype.add = function() {
         F.Taskbar.add(this.options.process_name, this.options.instance_id);
     };
 
-    FlatOS.UI.TaskBar.prototype.remove = function() {
+    FlatOS.UI.Taskbar.prototype.remove = function() {
         F.Taskbar.remove(this.options.process_name, this.options.instance_id);
     };
 

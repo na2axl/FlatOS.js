@@ -6,7 +6,7 @@
         _application = new FlatOS.Application(THIS_PROCESS_NAME),
         //_icons = new FlatOS.System.Icons(THIS_PROCESS_NAME),
         _mouse = new FlatOS.Input.Mouse(),
-        _taskbar = new FlatOS.UI.TaskBar(THIS_PROCESS_NAME);
+        _taskbar = new FlatOS.UI.Taskbar(THIS_PROCESS_NAME);
 
     var instance = _window.getInstanceID(),
         user_config = _application.getUserConfig();

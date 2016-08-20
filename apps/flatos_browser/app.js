@@ -1,7 +1,7 @@
 (function($) {
     var _w = new FlatOS.Window('flatos_browser'),
         _a = new FlatOS.Application('flatos_browser'),
-        _t = new FlatOS.UI.TaskBar('flatos_browser', _w.getInstanceID()),
+        _t = new FlatOS.UI.Taskbar('flatos_browser', _w.getInstanceID()),
         _m = new FlatOS.Input.Mouse(),
         _f = new FlatOS.System.FS();
         _h = new FlatOS.Ajax();

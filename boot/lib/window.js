@@ -120,11 +120,11 @@ F.Window.open = function (options) {
 
         F.Window.setInstanceID(param.process_name);
 
-        var $app_window  = $('<div></div>'),
-            $window_bar  = $('<div></div>'),
-            $window_main = $('<div></div>'),
-            $window_opts = $('<div></div>'),
-            $window_cont = $('<div></div>');
+        var $app_window  = $('<div/>'),
+            $window_bar  = $('<div/>'),
+            $window_main = $('<div/>'),
+            $window_opts = $('<div/>'),
+            $window_cont = $('<div/>');
 
         if (typeof param.window_w !== 'undefined') {
             if ($("#windows").outerWidth() >= param.window_w) {
