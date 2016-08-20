@@ -15,6 +15,7 @@ html,body {
     height: 100vh;
     width: 100%;
     z-index: 1;
+    overflow: hidden;
 }
 
 #background {
@@ -25,6 +26,54 @@ html,body {
     width: 100%;
     z-index: 0;
     background-color: #000;
+}
+
+#windows {
+    position: fixed;
+    left: 64px;
+    right: 0;
+    z-index: 1;
+    top: 0;
+    overflow: hidden;
+    bottom: 0;
+    padding: 0;
+    margin: 0;
+    display: block;
+}
+
+#startmenu {
+    background-color: rgba(204, 0, 0, 0.8);
+    color: #000;
+    margin: 0 0 2px 0 !important;
+    transition: background-color ease-in-out 0.3s 0s;
+}
+
+#startmenu:hover {
+    background-color: transparent;
+    color: #c00;
+}
+
+#startscreen .taskicon {
+    width: 176px;
+    height: 176px;
+    padding: 8px;
+    margin: 0;
+    text-align: center;
+    float: left;
+}
+
+#startscreen .taskicon .icon,
+#startscreen .taskicon .icon img {
+    width: 128px;
+    height: 128px;
+    padding: 0;
+    margin: 0 auto;
+    display: block;
+}
+
+#startscreen .taskicon .title {
+    font-weight: bold;
+    text-align: center;
 }
 
 #startscreen {
@@ -48,6 +97,7 @@ html,body {
 
 #startscreen .content {
     height: 100%;
+    width: 100%;
     float: left;
 }
 
@@ -125,7 +175,7 @@ html,body {
 
 #startscreen .scroller .view:hover,
 #startscreen .scroller .view.scrolling {
-    background-color: rgba(150, 150, 150, 1);
+    background-color: rgba(255, 255, 255, 1);
 }
 
 #startscreen .user-zone {
@@ -223,19 +273,6 @@ html,body {
     overflow: auto;
 }
 
-#windows {
-    position: fixed;
-    left: 64px;
-    right: 0;
-    z-index: 1;
-    top: 0;
-    overflow: hidden;
-    bottom: 0;
-    padding: 0;
-    margin: 0;
-    display: block;
-}
-
 #taskbar .loading {
     height: 100%;
     position: absolute;
@@ -245,19 +282,7 @@ html,body {
     opacity: 0.5;
 }
 
-#startmenu {
-    background-color: rgba(204, 0, 0, 0.8);
-    color: #000;
-    margin: 0 0 2px 0 !important;
-    transition: color ease-in-out 0.5s 0s;
-}
-
-#startmenu:hover {
-    background-color: transparent;
-    color: #c00;
-}
-
-.taskicon {
+#taskbar .taskicon {
     width: 64px;
     height: 64px;
     padding: 8px;
@@ -265,6 +290,60 @@ html,body {
     color: #fff;
     cursor: default;
     display: block;
+}
+
+@-webkit-keyframes taskicon-icon-wait {
+    from {
+        background-position: -64px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+@-moz-keyframes taskicon-icon-wait {
+    from {
+        background-position: -64px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+@-ms-keyframes taskicon-icon-wait {
+    from {
+        background-position: -64px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+@-o-keyframes taskicon-icon-wait {
+    from {
+        background-position: -64px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+@keyframes taskicon-icon-wait {
+    from {
+        background-position: -64px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+#taskbar .taskicon.waiting {
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-repeat: repeat-x;
+    background-size: 64px 64px;
+    -webkit-animation: taskicon-icon-wait 2s linear infinite;
+    -moz-animation: taskicon-icon-wait 2s linear infinite;
+    -ms-animation: taskicon-icon-wait 2s linear infinite;
+    -o-animation: taskicon-icon-wait 2s linear infinite;
+    animation: taskicon-icon-wait 2s linear infinite;
 }
 
 .taskicon:hover,
@@ -276,47 +355,28 @@ html,body {
     background-color: #c00;
 }
 
-#taskbar .taskicon.opened,
+#taskbar .taskicon.opened {
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
+}
+
 #taskbar .taskicon.current {
-    border-left: 3px solid #fff;
+    border-left: 3px solid rgba(255, 255, 255, 1);;
 }
 
 #taskbar .taskicon {
     margin: 2px 0;
 }
 
-.icon, .icon img {
+#taskbar .taskicon .icon, .icon img {
     width: 48px;
     height: 48px;
 }
 
-.icon::before {
+#taskbar .taskicon .icon::before {
     width: 32px;
     height: 32px;
     font-size: 48px;
     margin: 0;
-}
-
-#startscreen .taskicon {
-    width: 176px;
-    height: 176px;
-    padding: 8px;
-    margin: 0;
-    text-align: center;
-}
-
-#startscreen .taskicon .icon,
-#startscreen .taskicon .icon img {
-    width: 128px;
-    height: 128px;
-    padding: 0;
-    margin: 0 auto;
-    display: block;
-}
-
-#startscreen .taskicon .title {
-    font-weight: bold;
-    text-align: center;
 }
 
 #desktop-icons {
@@ -423,7 +483,7 @@ ul.flatos-contextual-menu li img {
     width: 24px;
     height: 24px;
     float: left;
-    margin-right: 5px;
+    margin: 0 5px;
 }
 
 ul.flatos-contextual-menu li.title a:hover {
