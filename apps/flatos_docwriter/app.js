@@ -3,14 +3,15 @@
     const this_process_name = 'flatos_docwriter';
 
     var _w = new FlatOS.Window(this_process_name),
+        _i = _w.getInstanceID(),
+        _t = new FlatOS.UI.Taskbar({process_name: this_process_name, instance_id: _i}),
         _a = new FlatOS.Application(this_process_name),
         _m = new FlatOS.Input.Mouse(),
         _u = new FlatOS.System.User(),
         _f = new FlatOS.System.FS();
 
 
-    var instance = _w.getInstanceID(),
-        $_w = _w.get();
+    var $_w = _w.get();
 
     var file_info = {},
         currPanel = 0,
@@ -58,7 +59,22 @@
     };
 
     var update_file_panel_visibility = function () {
-        showFilePanel ? $_w.find('.panel-file').removeClass('hide') : $_w.find('.panel-file').addClass('hide');
+        if (showFilePanel) {
+            $_w.find('.panel-file').removeClass('hide');
+            if (editor) {
+                $_w.find('.panel-file').find('.option.back_icon').removeClass('hide');
+                $_w.find('.panel-file').find('.option.save').removeClass('hide');
+                $_w.find('.panel-file').find('.option.export').removeClass('hide');
+            }
+            else {
+                $_w.find('.panel-file').find('.option.back_icon').addClass('hide');
+                $_w.find('.panel-file').find('.option.save').addClass('hide');
+                $_w.find('.panel-file').find('.option.export').addClass('hide');
+            }
+        }
+        else {
+            $_w.find('.panel-file').addClass('hide');
+        }
     };
 
     var update_panels_sizes = function () {
@@ -127,13 +143,13 @@
     var add_page = function () {
         $_w.find('.docwriter_pages').append('<div class="docwriter_document_page"><div class="docwriter_document_page_content" data-editable data-name="docwriter_document"><p></p></div></div>');
 
-        page_contents_element = $_w.find('.docwriter_document_page_content').eq(0)[0];
+        page_contents_element = $_w.find('.docwriter_document_page_content').get(0);
         var ct_app = ($_w.find('.ct-app').length > 0) ? $_w.find('.ct-app').eq(0) : $('<div/>').addClass('ct-app').appendTo($_w.find('.main-content').eq(0));
 
         editor = ContentTools.EditorApp.get();
 
-        editor.mount(ct_app[0]);
-        editor.init('*[data-editable]', 'data-name');
+        editor.mount(ct_app.get(0));
+        editor.init($(page_contents_element), 'data-name');
 
         inspector = editor.inspector();
 
@@ -311,7 +327,7 @@
             var opts = {
                 startAt: _u.userDir('Documents'),
                 parent_pid: this_process_name,
-                parent_iid: instance
+                parent_iid: _i
             };
             if (typeof file_info.internalPath != 'undefined') {
                 opts.startAt = _f.dirname(file_info.internalPath);
@@ -331,6 +347,7 @@
             });
         }
         else {
+            _t.toggleWaiting();
             new FlatOS.Api.File(function (info) {
                 file_info = info;
                 if (editor === null) {
@@ -343,6 +360,7 @@
                 set_page_contents(doc.doc_contents);
                 add_to_recents(file_info.externalPath);
                 showFilePanel = false;
+                _t.toggleWaiting();
             }).openFile(path);
         }
     };
@@ -352,7 +370,7 @@
             var opts = {
                 startAt: _u.userDir('Documents'),
                 parent_pid: this_process_name,
-                parent_iid: instance,
+                parent_iid: _i,
                 withExt: ['docw'],
                 contents: JSON.stringify(get_document()),
                 ext: 'docw'
@@ -398,6 +416,7 @@
         for (var m in margins) {
             margins_text += margins[m] + ' ';
         }
+        // TODO: Set the width and the height according to user's settings
         css.text('@page {size: portrait; margin: ' + margins_text + '}');
         $(window.frames["docwriter_print_frame_support"].document).find('head').find('.page_style').remove();
         $(window.frames["docwriter_print_frame_support"].document).find('head').append(css);
@@ -542,14 +561,24 @@
             $buttons = $parent.find('.panel-switcher');
 
         $buttons.each(function () {
-            $(this).attr('href', $(this).attr('href') + instance);
+            $(this).attr('href', $(this).attr('href') + _i);
         });
         $panels.each(function () {
-            $(this).attr('id', $(this).attr('id') + instance);
+            $(this).attr('id', $(this).attr('id') + _i);
         });
 
         init_panels();
         init_views();
+
+        _m.leftClick('docwriter.document.explore', $_w.find('.open_folder.explore'), function () {
+            new FlatOS.System.Application.FileSelectorDialog({
+                startAt: _u.userDir('Documents'),
+                parent_pid: this_process_name,
+                parent_iid: _i,
+                withExt: ['docw'],
+                title: "Choose a document"
+            }, open_document);
+        });
 
         _m.leftClick('docwriter.panels.files.show', $_w.find('.panel_file'), function () {
             load_file_panel();
@@ -718,18 +747,17 @@
         });
 
         _m.leftClick('docwriter.image.insert', $_w.find('.action-insert_image'), function () {
-            var element;
-            element = ContentEdit.Root.get().focused();
+            var element = ContentEdit.Root.get().focused();
 
             var opts = {
                 startAt: _u.userDir('Pictures'),
                 parent_pid: this_process_name,
-                parent_iid: instance,
+                parent_iid: _i,
                 withExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png']
             };
             new FlatOS.System.Application.FileSelectorDialog(opts, function (path) {
                 var image = new Image();
-                var canvas = $_w.find('canvas.docwriter_insert_image_support')[0];
+                var canvas = $_w.find('canvas.docwriter_insert_image_support').get(0);
                 var context = canvas.getContext('2d');
 
                 context.save();
@@ -756,7 +784,7 @@
                         imageDialog.hide();
                         new FlatOS.System.Application.ConfirmDialog({
                             parent_pid: this_process_name,
-                            parent_iid: instance,
+                            parent_iid: _i,
                             title: 'Choose another picture ?',
                             content: 'Do you want to choose another picture ?',
                             ok: 'Yes',
@@ -938,13 +966,13 @@
             var opts = {
                 startAt: _u.userDir('Pictures'),
                 parent_pid: this_process_name,
-                parent_iid: instance,
+                parent_iid: _i,
                 withExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png']
             };
             new FlatOS.System.Application.FileSelectorDialog(opts, function (path) {
                 var image = new Image();
 
-                var canvas = $_w.find('canvas.docwriter_insert_image_support')[0];
+                var canvas = $_w.find('canvas.docwriter_insert_image_support').get(0);
                 var context = canvas.getContext('2d');
 
                 context.save();
@@ -1156,7 +1184,7 @@
 
             var image = new Image();
 
-            var canvas = $_w.find('canvas.docwriter_insert_image_support')[0];
+            var canvas = $_w.find('canvas.docwriter_insert_image_support').get(0);
             var context = canvas.getContext('2d');
 
             context.save();
@@ -1248,7 +1276,7 @@
             var element;
             element = ContentEdit.Root.get().focused();
 
-            var canvas = $_w.find('canvas.docwriter_insert_image_support')[0];
+            var canvas = $_w.find('canvas.docwriter_insert_image_support').get(0);
             var context = canvas.getContext('2d');
             var ctx = new Image();
 
@@ -1281,7 +1309,7 @@
             var element;
             element = ContentEdit.Root.get().focused();
 
-            var canvas = $_w.find('canvas.docwriter_insert_image_support')[0];
+            var canvas = $_w.find('canvas.docwriter_insert_image_support').get(0);
             var context = canvas.getContext('2d');
             var ctx = new Image();
 
@@ -1314,7 +1342,7 @@
             var element;
             element = ContentEdit.Root.get().focused();
 
-            var canvas = $_w.find('canvas.docwriter_insert_image_support')[0];
+            var canvas = $_w.find('canvas.docwriter_insert_image_support').get(0);
             var context = canvas.getContext('2d');
             var ctx = new Image();
 
@@ -1346,7 +1374,7 @@
             var element;
             element = ContentEdit.Root.get().focused();
 
-            var canvas = $_w.find('canvas.docwriter_insert_image_support')[0];
+            var canvas = $_w.find('canvas.docwriter_insert_image_support').get(0);
             var context = canvas.getContext('2d');
             var ctx = new Image();
 
@@ -1569,7 +1597,10 @@
     _w.on('focus', function () {
         if (editor && editor.isEditing()) {
             var elements = editor.regions().docwriter_document.children;
-            elements[elements.length - 1].focus();
+            var element = ContentEdit.Root.get().focused();
+            if (!(element && element.isMounted())) {
+                elements[elements.length - 1].focus();
+            }
         }
     });
 
