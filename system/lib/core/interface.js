@@ -165,7 +165,7 @@
                         StartScreen.toggle();
                     });
 
-                    var TaskBar = new FlatOS.UI.TaskBar();
+                    var TaskBar = new FlatOS.UI.Taskbar();
                     TaskBar.load();
 
                     callback();
