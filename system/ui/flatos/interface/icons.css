@@ -1,47 +1,89 @@
-ul.icons li img {
+ul#desktop-icons li img {
     opacity: 0.75;
     transition: opacity ease-in-out 0.2s 0s;
 }
 
-ul.icons li img:hover,
-ul.icons li.selected img,
-ul.icons li.ui-selecting img,
-ul.icons li.ui-selected img {
+ul#desktop-icons li img:hover,
+ul#desktop-icons li.selected img,
+ul#desktop-icons li.ui-selecting img,
+ul#desktop-icons li.ui-selected img {
     opacity: 1;
 }
 
-ul.icons li.selected,
-ul.icons li.ui-selected {
+ul#desktop-icons li.selected,
+ul#desktop-icons li.ui-selected {
     background-color: rgba(33, 33, 33, 0.8);
+}
+
+ul#desktop-icons li {
+    text-align: center;
+    display: inline-block;
+}
+
+ul#desktop-icons li img {
+    display: inline-block;
+}
+
+ul#desktop-icons li span {
+    display: block;
+    word-break: ellipsis;
+    font-size: 12px;
+    text-shadow: #262626;
     color: #fff !important;
 }
 
-ul.icons.medium li {
-    float: left;
+ul#desktop-icons.medium li {
     width: 96px;
     height: 96px;
-    text-align: center;
     margin: 8px;
     padding: 10px 0;
-    display: inline-block;
 }
 
-ul.icons.medium li img {
+ul#desktop-icons.medium li img {
     width: 48px;
     height: 48px;
-    display: inline-block;
 }
 
-ul.icons.medium li span {
+ul#desktop-icons.medium li span {
     padding: 4px;
     margin: 4px 0;
-    color: #262626;
-    display: block;
-    word-wrap: break-word;
-    font-size: 12px;
 }
 
-ul.icons li span input {
+ul#desktop-icons.small li {
+    width: 64px;
+    height: 64px;
+    margin: 4px;
+    padding: 12px 0;
+}
+
+ul#desktop-icons.small li img {
+    width: 16px;
+    height: 16px;
+}
+
+ul#desktop-icons.small li span {
+    padding: 2px;
+    margin: 2px 0;
+}
+
+ul#desktop-icons.big li {
+    width: 128px;
+    height: 128px;
+    margin: 12px;
+    padding: 16px 0;
+}
+
+ul#desktop-icons.big li img {
+    width: 80px;
+    height: 80px;
+}
+
+ul#desktop-icons.big li span {
+    padding: 8px;
+    margin: 0;
+}
+
+ul#desktop-icons li span input {
     width: 100%;
     border: 0 none;
     padding: 4px;
