@@ -48,8 +48,12 @@ var FS = function FS(rootpath) {
  */
 FS.is_readable = function (path) {
     var _f = require('fs');
-    _f.accessSync(path, _f.R_OK);
-    return true;
+    try {
+        _f.accessSync(path, _f.R_OK);
+        return true;
+    } catch (e) {
+        return false;
+    }
 };
 
 /**
@@ -61,8 +65,12 @@ FS.is_readable = function (path) {
  */
 FS.is_writable = function (path) {
     var _f = require('fs');
-    _f.accessSync(path, _f.W_OK)
-    return true;
+    try {
+        _f.accessSync(path, _f.W_OK);
+        return true;
+    } catch (e) {
+        return false;
+    }
 };
 
 /**
@@ -219,7 +227,7 @@ FS.prototype.mkfile = function (path, createParent) {
 
     if (!this.exists(internalPath)) {
         if (_f.closeSync(_f.openSync(internalPath, 'w'))) {
-            _f.chmodSync(internalPath, 0777);
+            _f.chmodSync(internalPath, 0x1ff);
             return true;
         }
         if (!this.exists(internalPath)) {
@@ -295,7 +303,7 @@ FS.prototype.write = function (path, data, append) {
 
     if (_f.writeFileSync(internalPath, data, { flag: flag }) !== false) {
         if (applyChmod) {
-            _f.chmodSync(internalPath, 0777);
+            _f.chmodSync(internalPath, 0x1ff);
         }
         return true;
     }
@@ -321,7 +329,7 @@ FS.prototype.delete = function (path, recursive) {
     var _f = require('fs');
 
     if (this.exists(path)) {
-        _f.chmodSync(internalPath, 0777);
+        _f.chmodSync(internalPath, 0x1ff);
         if (this.isDir(path)) {
             if (recursive === true) {
                 var subfiles = this.readDir(path);
@@ -507,11 +515,11 @@ FS.prototype.mkdir = function (path, recursive) {
         }
     }
 
-    if (_f.mkdirSync(internalPath, 0777) === false) {
+    if (_f.mkdirSync(internalPath, 0x1ff) === false) {
         throw new Error('Cannot create directory "' + path + '"');
     }
     else {
-        _f.chmodSync(internalPath, 0777);
+        _f.chmodSync(internalPath, 0x1ff);
         return true;
     }
 };
@@ -525,7 +533,12 @@ FS.prototype.mkdir = function (path, recursive) {
  */
 FS.prototype.exists = function (path) {
     var _f = require('fs');
-    return _f.existsSync(this.toInternalPath(path));
+    try {
+        _f.statSync(this.toInternalPath(path));
+        return true;
+    } catch (e) {
+        return false;
+    }
 };
 
 /**
@@ -700,7 +713,6 @@ FS.prototype.sizeInOctets = function (path) {
 FS.prototype.mimetype = function (path) {
     var fileExtension = this.extension(path);
     var mime = require('mime');
-    var _f = require('fs');
     mime.define(JSON.parse(this.read('/system/etc/registry/types.json')));
     return mime.lookup(fileExtension);
 };
@@ -714,7 +726,7 @@ FS.prototype.mimetype = function (path) {
  */
 FS.prototype.isBinary = function (path) {
     var mime = this.mimetype(path);
-    return (mime.substr(0, 5) != 'text/');
+    return !(mime.substr(0, 5) === 'text/');
 };
 
 /**
@@ -849,14 +861,14 @@ FS.prototype.cleanPath = function (path) {
     for (var i = 0, l = badDirs.length, dir; i < l; ++i) {
         dir = badDirs[i];
 
-        if (dir == '..') {
+        if (dir === '..') {
             cleanDirs.pop();
         }
-        else if (dir == '.') {
-            continue;
+        else if (dir === '.') {
+
         }
         else if (!dir && i > 0) {
-            continue;
+
         }
         else {
             cleanDirs.push(dir);
@@ -913,9 +925,11 @@ FS.prototype.toInternalPath = function (path) {
         var appliedAliasesNbr = 0;
 
         for (var key in this.aliases) {
-            if (internalPath.substr(0, key.length) == key) {
-                internalPath = this.aliases[key] + '/' + internalPath.substr(key.length);
-                appliedAliasesNbr++;
+            if (this.aliases.hasOwnProperty(key)) {
+                if (internalPath.substr(0, key.length) == key) {
+                    internalPath = this.aliases[key] + '/' + internalPath.substr(key.length);
+                    appliedAliasesNbr++;
+                }
             }
         }
 
@@ -967,14 +981,16 @@ FS.prototype.toExternalPath = function (internalPath) {
         var appliedAliasesNbr = 0;
 
         for (var key in this.aliases) {
-            var value = this.aliases[key];
-            if (value[0] != '/') {
-                value = '/' + value;
-            }
+            if (this.aliases.hasOwnProperty(key)) {
+                var value = this.aliases[key];
+                if (value[0] != '/') {
+                    value = '/' + value;
+                }
 
-            if (externalPath.substr(0, value.length) == value) {
-                externalPath = key + '/' + externalPath.substr(value.length);
-                appliedAliasesNbr++;
+                if (externalPath.substr(0, value.length) == value) {
+                    externalPath = key + '/' + externalPath.substr(value.length);
+                    appliedAliasesNbr++;
+                }
             }
         }
 
@@ -982,7 +998,7 @@ FS.prototype.toExternalPath = function (internalPath) {
     } while (appliedAliasesNbr > 0 && nbrTurns <= maxNbrTurns);
 
     return this.cleanPath(externalPath);
-}
+};
 
 /**
  * Convert an internal path to an absolute path
@@ -1018,9 +1034,11 @@ FS.prototype.toFileSystemPath = function (internalPath) {
         var appliedAliasesNbr = 0;
 
         for (var key in this.aliases) {
-            if (externalPath.substr(0, key.length) == key) {
-                externalPath = this.aliases[key] + '/' + externalPath.substr(key.length);
-                appliedAliasesNbr++;
+            if (this.aliases.hasOwnProperty(key)) {
+                if (externalPath.substr(0, key.length) == key) {
+                    externalPath = this.aliases[key] + '/' + externalPath.substr(key.length);
+                    appliedAliasesNbr++;
+                }
             }
         }
 
