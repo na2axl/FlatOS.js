@@ -20,7 +20,7 @@ RawDataCall.prototype.render = function (request, response) {
     var ctnt = FlatOS.load('FS').read("."+path, true);
 
     response.status(200).append("content-type", mime+";charset=utf-8");
-    response.end(ctnt, FlatOS.load('FS').isBinary() ? "binary" : '');
+    response.end(ctnt, FlatOS.load('FS').isBinary(path) ? "binary" : void 0);
 };
 
 // Exports the module
